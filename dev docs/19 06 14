@@ -1,0 +1,41 @@
+I'm trying to make the simplest program I can think of to get this project off the ground. I foresee in the future being able to do nifty things like connect to databases, hosting content through web pages, etc etc. But right now I am trying to create a simple commandline program that will allow you to interact with the basic files of Anarkey.
+
+Which brings me to the main reason for writing this dev doc, what are the basic files of Anarkey and what do they look like?
+
+First: Anarkey key chain
+This contains all the user specific information. Their private key, the list of decrypting keys for key files, private key files, etc. I had originally wanted this to be just a blob, but I think other users will need to see the related metadata. I'm writing this from a very parnoid point of view and I can't think of a way to permit a user to see the content of the metadata without being able to change it for my terminal program. But I think I'm going to have to draw a line in the sand there. I'm going to assume that other people who have access to your physical machine are meerly not trust worth and not malicious, so they won't go vandalising your metadata. That out of the way I think the file will look something like this:
+
+file: user.anrkc
+
+{
+	"type":"Key Chain"
+	"user":"Alice",
+	"public key":public key,
+	"public key validator": a short(256 byte) personalized message encrypted behind the RSA public key to verify the public key's authenticity,
+	"key chain": key chain encrypted blob,
+	"encrypted aes key": encrypted aes key blob,
+	"inbox" : [list of deposited secrets]
+}
+
+inside "key chain" is a list of secrets. Secrets defined below.
+
+
+Second: Anarkey secret
+This file contains the secret information. I refer to them as secrets because I plan on this to be useful for more than just storing passwords. Right now my wife and I use our password manager for more than just passwords, we use it for all sorts of sensative information that we want at our finger tips. So rather than restrict the concept by calling them "keys" and produce confusion by colliding with the encryption keys. These files ought to look something like this:
+
+file: guid.anrs
+
+{
+	"type":"Secret",
+	"secret type":"Login",
+	"secret":binary encrypted blob
+}
+
+For both the these files there is the concept of "secrets" which are structures of data that are meant to keep private.
+{
+	"secret type":"Login",
+	"guid": a unique identifier for this secret,
+	"attributes": { key-valued dictionary of attributes, secret type provides insight on what to expect.}
+}
+
+The keychain is the most involved file with several different aspects to it. But it still is kept as simple as possible with the highly generic "secret" structure providing most of the work. 
